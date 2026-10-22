@@ -1,0 +1,100 @@
+
+# Case Study: Maze Generation using DFS
+# Subject: Data Structures (SPPU SE Computer Engineering)
+
+import random
+
+
+def generate_maze(rows, cols):
+    # Each cell has walls: Top, Right, Bottom, Left
+    maze = [
+        [[True, True, True, True] for _ in range(cols)]
+        for _ in range(rows)
+    ]
+
+    visited = set()
+    stack = [(0, 0)]
+    visited.add((0, 0))
+
+    # Directions: row change, col change, current wall, opposite wall
+    directions = [
+        (-1, 0, 0, 2),  # Top
+        (0, 1, 1, 3),   # Right
+        (1, 0, 2, 0),   # Bottom
+        (0, -1, 3, 1)   # Left
+    ]
+
+    while stack:
+        current_row, current_col = stack[-1]
+        neighbors = []
+
+        # Find unvisited neighboring cells
+        for dr, dc, wall, opposite_wall in directions:
+            nr = current_row + dr
+            nc = current_col + dc
+
+            if (0 <= nr < rows and
+                    0 <= nc < cols and
+                    (nr, nc) not in visited):
+                neighbors.append((nr, nc, wall, opposite_wall))
+
+        if neighbors:
+            # Choose a random unvisited neighbor
+            nr, nc, wall, opposite_wall = random.choice(neighbors)
+
+            # Remove the wall between current and next cell
+            maze[current_row][current_col][wall] = False
+            maze[nr][nc][opposite_wall] = False
+
+            visited.add((nr, nc))
+            stack.append((nr, nc))
+        else:
+            # Backtrack when no unvisited neighbor exists
+            stack.pop()
+
+    return maze
+
+
+def display_maze(maze):
+    rows = len(maze)
+    cols = len(maze[0])
+
+    # Print top boundary
+    print("+" + "---+" * cols)
+
+    for r in range(rows):
+        line1 = "|"
+        line2 = "+"
+
+        for c in range(cols):
+            # Cell content
+            line1 += "   "
+
+            # Right wall
+            if maze[r][c][1]:
+                line1 += "|"
+            else:
+                line1 += " "
+
+            # Bottom wall
+            if maze[r][c][2]:
+                line2 += "---+"
+            else:
+                line2 += "   +"
+
+        print(line1)
+        print(line2)
+
+
+# Main program
+print("===== MAZE GENERATION USING DFS =====")
+
+rows = int(input("Enter number of rows: "))
+cols = int(input("Enter number of columns: "))
+
+if rows <= 0 or cols <= 0:
+    print("Rows and columns must be positive!")
+else:
+    maze = generate_maze(rows, cols)
+    print("\nGenerated Maze:\n")
+    display_maze(maze)
